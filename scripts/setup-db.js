@@ -1,0 +1,68 @@
+
+import pkg from 'pg';
+const { Client } = pkg;
+
+const connectionString = 'postgresql://neondb_owner:npg_AxZu5OcCXmL7@ep-polished-cake-ahjm2aou-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+
+const client = new Client({
+    connectionString,
+});
+
+async function setupDatabase() {
+    try {
+        await client.connect();
+        console.log('Connected to Neon DB');
+
+        // Enable UUID extension if needed, though we seem to use string IDs based on mock data. 
+        // Types say 'id: string'. We'll use TEXT for flexibility or UUID if we want to change it.
+        // For now TEXT is safer to match existing mock logic if IDs are arbitrary strings.
+
+        console.log('Creating "users" table...');
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT NOT NULL,
+        email TEXT NOT NULL,
+        follower_count INTEGER DEFAULT 0,
+        followers_at_join INTEGER DEFAULT 0,
+        package_name TEXT NOT NULL,
+        promo_code_used TEXT,
+        automations_used INTEGER DEFAULT 0,
+        email_integrated BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        time_spent_minutes INTEGER DEFAULT 0,
+        is_affiliate BOOLEAN DEFAULT FALSE,
+        referral_count INTEGER DEFAULT 0
+      );
+    `);
+
+        console.log('Creating "promo_codes" table...');
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS promo_codes (
+        id TEXT PRIMARY KEY,
+        code TEXT NOT NULL UNIQUE,
+        discount_type TEXT NOT NULL,
+        value NUMERIC NOT NULL,
+        expiry_date TEXT NOT NULL, 
+        assigned_user_id TEXT,
+        usage_count INTEGER DEFAULT 0,
+        max_uses INTEGER DEFAULT 1,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        created_by TEXT,
+        approved_by TEXT
+      );
+    `);
+
+        // We used TEXT for expiry_date to match the interface 'string' (YYYY-MM-DD), 
+        // but DATE or TIMESTAMP is better practice. Staying simple for now matching TS types.
+
+        console.log('Tables created successfully!');
+
+    } catch (err) {
+        console.error('Error setting up database:', err);
+    } finally {
+        await client.end();
+    }
+}
+
+setupDatabase();

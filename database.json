@@ -1,0 +1,6 @@
+{
+    "dev": {
+        "driver": "pg",
+        "connectionString": "postgresql://neondb_owner:npg_AxZu5OcCXmL7@ep-polished-cake-ahjm2aou-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    }
+}

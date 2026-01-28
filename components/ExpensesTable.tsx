@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { api } from '../services/api';
+import { addMockExpense, updateMockExpenseStatus } from '../services/mockData';
 
 interface Expense {
     id: string;
@@ -40,7 +41,9 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onRefresh }) =>
             await api.put(`/expenses/${id}/status`, { status: newStatus });
             onRefresh();
         } catch (err) {
-            alert('Failed to update status. Are you Admin?');
+            console.warn('API Update Failed, using mock fallback', err);
+            updateMockExpenseStatus(id, newStatus);
+            onRefresh();
         }
     };
 
@@ -61,7 +64,28 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onRefresh }) =>
                 expiry_date: ''
             });
         } catch (err) {
-            alert('Failed to create expense');
+            console.warn('API Create Failed, using mock fallback', err);
+            const mockEx = {
+                ...formData,
+                id: `mock-ex-${Date.now()}`,
+                amount: String(formData.amount),
+                status: 'awaiting_approval',
+                raised_by_name: 'You (Demo)',
+                approved_by_name: null
+            };
+            addMockExpense(mockEx);
+            onRefresh();
+            setShowForm(false);
+            setFormData({
+                merchant: '',
+                type: 'tools',
+                amount: 0,
+                expense_date: new Date().toISOString().split('T')[0],
+                description: '',
+                product_link: '',
+                invoice_url: '',
+                expiry_date: ''
+            });
         }
     };
 

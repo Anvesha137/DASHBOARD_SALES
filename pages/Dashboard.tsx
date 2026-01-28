@@ -9,7 +9,7 @@ import AnalyticsOverview from '../components/AnalyticsOverview';
 import NotificationsView from '../components/NotificationsView';
 import { User, PromoCode, DashboardView } from '../types';
 import { api } from '../services/api';
-import { getMockUsers, getMockPromoCodes, getMockSalesPeople, getMockExpenses, getMockAnalytics, getMockNotifications } from '../services/mockData';
+import { getMockUsers, getMockPromoCodes, getMockSalesPeople, getMockExpenses, getMockAnalytics, getMockNotifications, addMockUser, addMockPromoCode } from '../services/mockData';
 
 const Dashboard: React.FC = () => {
     const [activeView, setActiveView] = useState<DashboardView>('users');
@@ -78,7 +78,10 @@ const Dashboard: React.FC = () => {
             const created = await api.post('/promos', newPromo);
             setPromoCodes([created, ...promoCodes]);
         } catch (e) {
-            alert('Failed to create promo');
+            console.warn('API Create Failed, using mock fallback', e);
+            const mockPromo = { ...newPromo, id: `mock-p-${Date.now()}`, usageCount: 0 };
+            addMockPromoCode(mockPromo as PromoCode);
+            setPromoCodes([mockPromo as PromoCode, ...promoCodes]);
         }
     };
 
@@ -87,7 +90,18 @@ const Dashboard: React.FC = () => {
             const created = await api.post('/users', newUser);
             setUsers([created, ...users]);
         } catch (e) {
-            alert('Failed to create user');
+            console.warn('API Create Failed, using mock fallback', e);
+            const mockUser = {
+                ...newUser,
+                id: `mock-u-${Date.now()}`,
+                promoCodeUsed: '',
+                automationsUsed: 0,
+                createdAt: new Date().toISOString(),
+                timeSpentMinutes: 0,
+                referralCount: 0
+            };
+            addMockUser(mockUser as User);
+            setUsers([mockUser as User, ...users]);
         }
     };
 

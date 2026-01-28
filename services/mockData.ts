@@ -179,10 +179,40 @@ export const NOTIFICATIONS = [
   }
 ];
 
+
 export const getMockUsers = () => USERS;
+export const addMockUser = (user: User) => {
+  USERS.unshift(user);
+  return user;
+};
+
 export const getMockPromoCodes = () => PROMO_CODES;
+export const addMockPromoCode = (promo: PromoCode) => {
+  PROMO_CODES.unshift(promo);
+  return promo;
+};
+
 export const getMockSalesPeople = () => SALES_PEOPLE;
+export const deleteMockSalesPerson = (id: string) => {
+  const index = SALES_PEOPLE.findIndex(sp => sp.id === id);
+  if (index > -1) {
+    SALES_PEOPLE.splice(index, 1);
+  }
+};
+
 export const getMockExpenses = () => EXPENSES;
+export const addMockExpense = (expense: any) => {
+  EXPENSES.unshift(expense);
+  return expense;
+};
+export const updateMockExpenseStatus = (id: string, status: string) => {
+  const expense = EXPENSES.find(e => e.id === id);
+  if (expense) {
+    expense.status = status as any;
+  }
+};
+
 export const getMockAnalytics = () => ANALYTICS;
 export const getMockNotifications = () => NOTIFICATIONS;
+
 

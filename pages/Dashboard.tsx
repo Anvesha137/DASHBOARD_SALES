@@ -9,6 +9,7 @@ import AnalyticsOverview from '../components/AnalyticsOverview';
 import NotificationsView from '../components/NotificationsView';
 import { User, PromoCode, DashboardView } from '../types';
 import { api } from '../services/api';
+import { getMockUsers, getMockPromoCodes, getMockSalesPeople, getMockExpenses, getMockAnalytics, getMockNotifications } from '../services/mockData';
 
 const Dashboard: React.FC = () => {
     const [activeView, setActiveView] = useState<DashboardView>('users');
@@ -53,20 +54,16 @@ const Dashboard: React.FC = () => {
             setAnalytics(analyticsData);
             setNotifications(notifData);
         } catch (err: any) {
-            console.error('Failed to fetch dashboard data', err);
-            // Check if error is related to auth (401/403)
-            // api.ts should handle this, but if it bubbles up:
-            if (err.message && (err.message.includes('401') || err.message.includes('403'))) {
-                window.location.href = '/login';
-            } else {
-                // If it's a hard failure after seed, forcing logout might be safest
-                const shouldReset = confirm('Session might be invalid due to system update. Logout and Login?');
-                if (shouldReset) {
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('accessToken');
-                    window.location.href = '/login';
-                }
-            }
+            console.warn('API Fetch Failed, falling back to mock data.', err);
+            // Fallback to Mock Data (Safe Mode)
+            setUsers(getMockUsers());
+            setPromoCodes(getMockPromoCodes());
+            setSalesPeople(getMockSalesPeople());
+            setExpenses(getMockExpenses());
+            setAnalytics(getMockAnalytics());
+            setNotifications(getMockNotifications());
+
+            // Do NOT redirect to login to allow "No Login" mode
         } finally {
             setLoading(false);
         }

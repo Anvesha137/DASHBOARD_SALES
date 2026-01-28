@@ -108,5 +108,81 @@ const PROMO_CODES: PromoCode[] = [
   }
 ];
 
+
+// -- Mock Data for Sales, Expenses, Analytics, Notifications --
+
+export const SALES_PEOPLE = [
+  { id: 'sp1', name: 'Alex Johnson', email: 'alex@company.com', active: true, joined_on: '2023-01-15T00:00:00Z', onboarded_count: 45 },
+  { id: 'sp2', name: 'Maria Garcia', email: 'maria@company.com', active: true, joined_on: '2023-03-10T00:00:00Z', onboarded_count: 82 },
+  { id: 'sp3', name: 'James Smith', email: 'james@company.com', active: false, joined_on: '2022-11-05T00:00:00Z', onboarded_count: 12 }
+];
+
+export const EXPENSES = [
+  {
+    id: 'ex1',
+    type: 'tools',
+    merchant: 'AWS',
+    expense_date: '2024-01-20',
+    amount: '145.50',
+    description: 'Cloud hosting fees',
+    status: 'approved',
+    raised_by_name: 'Dev Team',
+    approved_by_name: 'CTO'
+  },
+  {
+    id: 'ex2',
+    type: 'marketing',
+    merchant: 'Google Ads',
+    expense_date: '2024-01-22',
+    amount: '500.00',
+    description: 'Q1 Ad Campaign',
+    status: 'awaiting_approval',
+    raised_by_name: 'Marketing Lead'
+  }
+];
+
+export const ANALYTICS = {
+  totalUsers: 1543,
+  totalAutomations: 8900,
+  affiliateCount: 45,
+  topSales: [
+    { name: 'Maria G.', count: 82 },
+    { name: 'Alex J.', count: 45 },
+    { name: 'Sam W.', count: 28 },
+  ],
+  packageData: [
+    { name: 'Free', value: 600 },
+    { name: 'Starter', value: 500 },
+    { name: 'Pro', value: 300 },
+    { name: 'Enterprise', value: 143 },
+  ]
+};
+
+export const NOTIFICATIONS = [
+  {
+    id: 'n1',
+    title: 'AWS Credits Expiring',
+    message: 'Your $1000 AWS credits are expiring soon.',
+    type: 'expiry',
+    severity: 'critical',
+    date: '2024-02-15T00:00:00Z',
+    daysLeft: 18
+  },
+  {
+    id: 'n2',
+    title: 'License Renewal',
+    message: 'Adobe Creative Cloud renewal due.',
+    type: 'info',
+    severity: 'warning',
+    date: '2024-03-01T00:00:00Z',
+    daysLeft: 32
+  }
+];
+
 export const getMockUsers = () => USERS;
 export const getMockPromoCodes = () => PROMO_CODES;
+export const getMockSalesPeople = () => SALES_PEOPLE;
+export const getMockExpenses = () => EXPENSES;
+export const getMockAnalytics = () => ANALYTICS;
+export const getMockNotifications = () => NOTIFICATIONS;
+

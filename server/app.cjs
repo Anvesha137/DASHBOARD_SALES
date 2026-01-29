@@ -32,24 +32,37 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Serve static files in production
-// Check if we are in production or if a specific flag is set
-if (process.env.NODE_ENV === 'production') {
-    // Serve static files from the dist directory
-    app.use(express.static(path.join(__dirname, '../dist')));
+const fs = require('fs');
+
+// Serve static files (Production / Deployment)
+const distPath = path.join(__dirname, '../dist');
+const indexHtmlPath = path.join(distPath, 'index.html');
+
+if (fs.existsSync(distPath)) {
+    console.log(`Serving static files from: ${distPath}`);
+    app.use(express.static(distPath));
 
     // Handle React routing, return all requests to React app
     app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+        if (fs.existsSync(indexHtmlPath)) {
+            res.sendFile(indexHtmlPath);
+        } else {
+            console.error(`Index.html not found at: ${indexHtmlPath}`);
+            res.status(404).send('Application built, but index.html not found.');
+        }
     });
+} else {
+    console.log(`Dist directory not found at: ${distPath}. Run 'npm run build' first.`);
+    // Fallback for when running server-only in dev without dist
+    if (process.env.NODE_ENV !== 'production') {
+        app.get('/', (req, res) => res.send('Backend Server Running. Frontend not built or not served.'));
+    }
 }
-
-// Export for Vercel (serverless)
-module.exports = app;
 
 // Start server only if run directly (local dev)
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV}`);
     });
 }

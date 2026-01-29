@@ -15,8 +15,8 @@ This project is configured to be deployed as a Docker container on Easypanel. Th
     *   Select **"Git"** as the source.
     *   Connect your repository and select the branch you want to deploy.
 3.  **Configuration**:
-    *   Easypanel should automatically detect the `Dockerfile` in the root directory.
-    *   **Build Method**: Ensure it is set to **Docker** (or Dockerfile).
+    *   Easypanel should automatically detect the `nixpacks.toml` in the root directory.
+    *   **Build Method**: Ensure it is set to **Nixpacks** (usually the default if no Dockerfile is found).
     *   **Port**: The container exposes port `3000`. Easypanel usually detects this, but if asked, specify `3000`.
 4.  **Environment Variables**:
     You MUST set the following environment variables in the **Environment** tab of your service:

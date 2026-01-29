@@ -10,7 +10,8 @@
     "dev:full": "npm run dev",
     "build": "vite build",
     "preview": "vite preview",
-    "migrate": "node -r dotenv/config node_modules/node-pg-migrate/bin/node-pg-migrate"
+    "migrate": "node -r dotenv/config node_modules/node-pg-migrate/bin/node-pg-migrate",
+    "start": "node server/app.cjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

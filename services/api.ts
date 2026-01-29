@@ -67,8 +67,21 @@ export const api = {
         }
 
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-            throw new Error(error.error || `Request failed with status ${response.status}`);
+            let errorMsg = 'Unknown error';
+            try {
+                const text = await response.text();
+                try {
+                    const errorData = JSON.parse(text);
+                    errorMsg = errorData.error || errorData.message || JSON.stringify(errorData);
+                } catch {
+                    // Not JSON, use the text directly (e.g. 404 HTML or plain text)
+                    errorMsg = text.slice(0, 100) || `Request failed with status ${response.status}`;
+                }
+            } catch (e) {
+                // Failed to read text (network issue?)
+                errorMsg = `Request failed with status ${response.status}`;
+            }
+            throw new Error(errorMsg);
         }
 
         return response.json();

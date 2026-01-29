@@ -31,9 +31,16 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
     try {
         const { rows } = await db.query(
             `INSERT INTO promo_codes (code, discount_percentage, max_usage, assigned_sales_id, created_by, approved_by)
-       VALUES ($1, $2, $3, $4, $5, $5) RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5, $5) 
+       ON CONFLICT (code) DO NOTHING
+       RETURNING *`,
             [code.toUpperCase(), discount, max_usage, assigned_sales_id || null, req.user.id]
         );
+        if (rows.length === 0) {
+            const existing = await db.query(`SELECT * FROM promo_codes WHERE code = $1`, [code.toUpperCase()]);
+            // If it exists, we just return it so frontend doesn't error
+            return res.json(existing.rows[0]);
+        }
         res.json(rows[0]);
     } catch (err) {
         console.error(err);

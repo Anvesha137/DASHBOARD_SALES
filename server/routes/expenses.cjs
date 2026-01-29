@@ -40,21 +40,20 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 
     try {
-        const { rows } = await db.query(
-            `INSERT INTO expenses (
+        `INSERT INTO expenses (
                 merchant, type, amount, description, expense_date, 
-                created_by, product_link, invoice_url, expiry_date
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+                created_by
+            ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
             [
                 merchant, type, amount, description, expense_date,
-                req.user.id, product_link, invoice_url, expiry_date
+                req.user.id
             ]
         );
-        res.status(201).json(rows[0]);
+res.status(201).json(rows[0]);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to create expense' });
-    }
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create expense' });
+}
 });
 
 // APPROVE / REIMBURSE (Admin only)

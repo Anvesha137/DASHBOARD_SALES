@@ -5,23 +5,19 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'access_secret_12
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'refresh_secret_123';
 
 function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-    if (!token) return res.sendStatus(401);
-
-    jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
+    // BYPASS AUTH as requested
+    req.user = {
+        id: '25c5fee1-e4fb-4b05-a576-ab599b779783',
+        name: 'Super Admin',
+        email: 'admin@saaspro.com',
+        role: 'admin'
+    };
+    next();
 }
 
 function requireRole(role) {
     return (req, res, next) => {
-        if (!req.user || req.user.role !== role) {
-            return res.status(403).json({ error: 'Access denied: Insufficient privileges' });
-        }
+        // BYPASS ROLE CHECK
         next();
     };
 }

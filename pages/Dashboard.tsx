@@ -9,7 +9,6 @@ import AnalyticsOverview from '../components/AnalyticsOverview';
 import NotificationsView from '../components/NotificationsView';
 import { User, PromoCode, DashboardView } from '../types';
 import { api } from '../services/api';
-import { getMockUsers, getMockPromoCodes, getMockSalesPeople, getMockExpenses, getMockAnalytics, getMockNotifications, addMockUser, addMockPromoCode } from '../services/mockData';
 
 const Dashboard: React.FC = () => {
     const [activeView, setActiveView] = useState<DashboardView>('users');
@@ -20,6 +19,7 @@ const Dashboard: React.FC = () => {
     const [analytics, setAnalytics] = useState<any>(null);
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchData = async () => {
         setLoading(true);
@@ -54,16 +54,8 @@ const Dashboard: React.FC = () => {
             setAnalytics(analyticsData);
             setNotifications(notifData);
         } catch (err: any) {
-            console.warn('API Fetch Failed, falling back to mock data.', err);
-            // Fallback to Mock Data (Safe Mode)
-            setUsers(getMockUsers());
-            setPromoCodes(getMockPromoCodes());
-            setSalesPeople(getMockSalesPeople());
-            setExpenses(getMockExpenses());
-            setAnalytics(getMockAnalytics());
-            setNotifications(getMockNotifications());
-
-            // Do NOT redirect to login to allow "No Login" mode
+            console.error('API Fetch Failed', err);
+            setError(err.message || 'Failed to connect to the server. Please ensure the backend is running.');
         } finally {
             setLoading(false);
         }
@@ -77,31 +69,22 @@ const Dashboard: React.FC = () => {
         try {
             const created = await api.post('/promos', newPromo);
             setPromoCodes([created, ...promoCodes]);
-        } catch (e) {
-            console.warn('API Create Failed, using mock fallback', e);
-            const mockPromo = { ...newPromo, id: `mock-p-${Date.now()}`, usageCount: 0 };
-            addMockPromoCode(mockPromo as PromoCode);
-            setPromoCodes([mockPromo as PromoCode, ...promoCodes]);
+        } catch (e: any) {
+            console.error('API Create Failed', e);
+            alert(`Failed to create promo code: ${e.message}`);
         }
     };
 
     const handleAddUser = async (newUser: Omit<User, 'id' | 'promoCodeUsed' | 'automationsUsed' | 'createdAt' | 'timeSpentMinutes' | 'referralCount'>) => {
         try {
             const created = await api.post('/users', newUser);
-            setUsers([created, ...users]);
-        } catch (e) {
-            console.warn('API Create Failed, using mock fallback', e);
-            const mockUser = {
-                ...newUser,
-                id: `mock-u-${Date.now()}`,
-                promoCodeUsed: '',
-                automationsUsed: 0,
-                createdAt: new Date().toISOString(),
-                timeSpentMinutes: 0,
-                referralCount: 0
-            };
-            addMockUser(mockUser as User);
-            setUsers([mockUser as User, ...users]);
+            // The created user from DB might need mapping to match frontend User interface completely if names differ
+            // But simpler to just re-fetch to get consistent state or map manually here similar to fetchData
+            // Let's re-fetch for simplicity and consistency
+            fetchData();
+        } catch (e: any) {
+            console.error('API Create Failed', e);
+            alert(`Failed to create user: ${e.message}`);
         }
     };
 
@@ -111,6 +94,23 @@ const Dashboard: React.FC = () => {
                 <div className="flex flex-col items-center justify-center h-64 space-y-4">
                     <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
                     <p className="text-slate-500 font-medium animate-pulse">Synchronizing Dashboard Data...</p>
+                </div>
+            );
+        }
+
+        if (error) {
+            return (
+                <div className="flex flex-col items-center justify-center h-64 space-y-4 text-center">
+                    <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-800">Connection Error</h3>
+                        <p className="text-slate-500 max-w-md mx-auto mt-1">{error}</p>
+                    </div>
+                    <button onClick={fetchData} className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors">
+                        Retry Connection
+                    </button>
                 </div>
             );
         }

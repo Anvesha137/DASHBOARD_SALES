@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { api } from '../services/api';
-import { deleteMockSalesPerson, getMockSalesPeople } from '../services/mockData';
+
 
 interface SalesPerson {
     id: string;
@@ -26,42 +26,22 @@ const SalesTable: React.FC<SalesTableProps> = ({ salesPeople, onRefresh }) => {
         try {
             await api.delete(`/sales/${id}`);
             onRefresh();
-        } catch (err) {
-            console.warn('API Delete Failed, using mock fallback', err);
-            deleteMockSalesPerson(id);
-            onRefresh(); // Refresh will trigger parent to reload (or we could manually update local state if passed down setter)
-            // Since onRefresh fetches from API (which might fail again), we rely on Dashboard.tsx fallback.
-            // Ideally we should update local state here if parent doesn't. 
-            // But Dashboard.tsx fallback sets state from getMockSalesPeople(), so it works!
+        } catch (err: any) {
+            console.error('API Delete Failed', err);
+            alert(`Failed to delete sales person: ${err.message}`);
         }
     };
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Mock API call since we don't have a real endpoint yet/backend might be down
-            // await api.post('/sales', newPerson); 
-            // Simulate API failure for now or direct mock add if no endpoint
-            throw new Error('No API endpoint');
-        } catch (err) {
-            console.warn('API Create Failed/Not Impl, using mock fallback', err);
-            const mockSP = {
-                id: `mock-sp-${Date.now()}`,
-                name: newPerson.name,
-                email: newPerson.email,
-                active: true,
-                joined_on: new Date().toISOString(),
-                onboarded_count: 0
-            };
-            // We need to add to mock data export
-            // Adding ad-hoc to the array via a helper would be better but direct push works if reference shared
-            // We'll trust getMockSalesPeople returns the mutable array reference for now, but let's be safe and use a helper if we had one.
-            // We implemented deleteMockSalesPerson, let's assume we can push to the array returned by getMockSalesPeople()
-            getMockSalesPeople().push(mockSP);
-
+            await api.post('/sales', newPerson);
             onRefresh();
             setShowForm(false);
             setNewPerson({ name: '', email: '' });
+        } catch (err: any) {
+            console.error('API Create Failed', err);
+            alert(`Failed to add sales person: ${err.message}`);
         }
     };
 

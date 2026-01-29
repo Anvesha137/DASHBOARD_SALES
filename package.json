@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run server\" \"npm run dev:client\"",
+    "dev:client": "vite",
     "server": "node server/app.cjs",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
+    "dev:full": "npm run dev",
     "build": "vite build",
     "preview": "vite preview",
     "migrate": "node -r dotenv/config node_modules/node-pg-migrate/bin/node-pg-migrate"

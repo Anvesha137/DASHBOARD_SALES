@@ -47,14 +47,22 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // CREATE User
 router.post('/', authenticateToken, async (req, res) => {
-    // TODO: Add validation
-    const { username, email, package: pkg, followers_joined, followers_now, is_affiliate } = req.body;
+    // Frontend sends: packageName, followerCount, followersAtJoin, isAffiliate
+    const { username, email, packageName, followersAtJoin, followerCount, isAffiliate } = req.body;
 
+    // Map to DB columns: package, followers_joined, followers_now, is_affiliate
     try {
         const { rows } = await db.query(
             `INSERT INTO users (username, email, package, followers_joined, followers_now, is_affiliate)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-            [username, email, pkg || 'free', followers_joined || 0, followers_now || 0, is_affiliate || false]
+            [
+                username,
+                email,
+                (packageName || 'free').toLowerCase(),
+                parseInt(followersAtJoin) || 0,
+                parseInt(followerCount) || 0,
+                isAffiliate || false
+            ]
         );
         res.json(rows[0]);
     } catch (err) {

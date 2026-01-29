@@ -11,7 +11,7 @@ const expenseRoutes = require('./routes/expenses.cjs');
 const analyticsRoutes = require('./routes/analytics.cjs');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet());
@@ -54,15 +54,13 @@ if (fs.existsSync(distPath)) {
 } else {
     console.log(`Dist directory not found at: ${distPath}. Run 'npm run build' first.`);
     // Fallback for when running server-only in dev without dist
-    if (process.env.NODE_ENV !== 'production') {
-        app.get('/', (req, res) => res.send('Backend Server Running. Frontend not built or not served.'));
-    }
+    app.get('*', (req, res) => res.send('Backend Server Running. Frontend not built or not served.'));
 }
 
 // Start server only if run directly (local dev)
 if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on http://0.0.0.0:${PORT}`);
         console.log(`Environment: ${process.env.NODE_ENV}`);
     });
 }

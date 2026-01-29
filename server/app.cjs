@@ -1,5 +1,6 @@
 
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const authRoutes = require('./routes/auth.cjs');
@@ -30,6 +31,18 @@ app.use('/api/notifications', require('./routes/notifications.cjs'));
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Serve static files in production
+// Check if we are in production or if a specific flag is set
+if (process.env.NODE_ENV === 'production') {
+    // Serve static files from the dist directory
+    app.use(express.static(path.join(__dirname, '../dist')));
+
+    // Handle React routing, return all requests to React app
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+    });
+}
 
 // Export for Vercel (serverless)
 module.exports = app;

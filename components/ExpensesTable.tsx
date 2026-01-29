@@ -120,7 +120,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onRefresh }) =>
                                 value={formData.merchant} onChange={e => setFormData({ ...formData, merchant: e.target.value })} />
                         </div>
                         <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Amount ($)</label>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Amount (₹)</label>
                             <input required type="number" step="0.01" className="w-full px-4 py-2 border rounded-lg text-sm"
                                 value={formData.amount} onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })} />
                         </div>
@@ -212,7 +212,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onRefresh }) =>
                                         )}
                                     </td>
                                     <td className="px-6 py-4 text-right font-mono font-bold text-slate-900">
-                                        ${Number(ex.amount).toFixed(2)}
+                                        ₹{Number(ex.amount).toFixed(2)}
                                         <div className="text-[10px] text-slate-400 mt-1 font-sans font-normal">
                                             {new Date(ex.expense_date).toLocaleDateString()}
                                         </div>

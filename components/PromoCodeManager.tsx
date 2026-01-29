@@ -80,7 +80,6 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ promoCodes, onAddPr
                 onChange={e => setFormData({ ...formData, discountType: e.target.value as DiscountType })}
               >
                 <option value={DiscountType.PERCENTAGE}>Percentage (%)</option>
-                <option value={DiscountType.FLAT}>Flat Amount ($)</option>
               </select>
             </div>
             <div>
@@ -97,7 +96,8 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ promoCodes, onAddPr
               <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Expiry Date</label>
               <input
                 required
-                type="date"
+                type="text"
+                placeholder="YYYY-MM-DD"
                 className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-xs"
                 value={formData.expiryDate}
                 onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}
@@ -156,8 +156,9 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ promoCodes, onAddPr
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Promo Code</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Discount</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Usage / Max</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                {/* Status removed as requested */}
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Assigned To</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Expiry</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Created</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Approved By</th>
               </tr>
@@ -179,7 +180,7 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ promoCodes, onAddPr
                         {pc.discountType === DiscountType.PERCENTAGE ? (
                           <>{pc.value}% OFF</>
                         ) : (
-                          <>${pc.value} FLAT</>
+                          <>₹{pc.value} FLAT</>
                         )}
                       </span>
                     </td>
@@ -191,13 +192,7 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ promoCodes, onAddPr
                         {pc.maxUses === 1 ? 'One-Time' : 'Multi-Use'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                        {isActive ? 'Active' : isExpired ? 'Expired' : 'Limit Reached'}
-                      </span>
-                      {isActive && <div className="text-[8px] text-slate-500 mt-1">Exp: {pc.expiryDate}</div>}
-                    </td>
+                    {/* Status cell removed */}
                     <td className="px-6 py-4">
                       {pc.assignedUserId ? (
                         <div className="flex items-center gap-2">
@@ -207,6 +202,11 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({ promoCodes, onAddPr
                       ) : (
                         <span className="text-slate-400 text-xs italic">Global</span>
                       )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className={`text-xs font-medium ${isExpired ? 'text-red-500' : 'text-slate-700'}`}>
+                        {new Date(pc.expiryDate).toLocaleDateString()}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-xs text-slate-700 font-medium">{new Date(pc.createdAt).toLocaleDateString()}</div>

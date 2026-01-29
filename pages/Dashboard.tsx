@@ -51,11 +51,11 @@ const Dashboard: React.FC = () => {
             setPromoCodes(promosData.map((p: any) => ({
                 id: p.id,
                 code: p.code,
-                discountType: 'PERCENTAGE', // DB doesn't store this yet? Migration said integer discount_percentage
+                discountType: p.discount_type as any, // Now mapped correctly from DB
                 value: p.discount_percentage,
                 maxUses: p.max_usage,
                 usageCount: p.usage_count,
-                expiryDate: p.created_at, // Temporary fallback if expiry not stored
+                expiryDate: p.expiry_date || p.created_at, // Use real expiry if available
                 assignedUserId: p.assigned_sales_name, // Mapping ID to name for display
                 createdAt: p.created_at,
                 createdBy: p.created_by_name || 'Admin',
@@ -79,8 +79,20 @@ const Dashboard: React.FC = () => {
 
     const handleAddPromoCode = async (newPromo: Omit<PromoCode, 'id' | 'usageCount'>) => {
         try {
-            const created = await api.post('/promos', newPromo);
-            setPromoCodes([created, ...promoCodes]);
+            // Map frontend fields (驼峰 camelCase) to backend expectations (snake_case usually or specific names)
+            // Backend expects: code, discount, max_usage, assigned_sales_id
+            const payload = {
+                code: newPromo.code,
+                discount: newPromo.value,
+                max_usage: newPromo.maxUses,
+                assigned_sales_id: newPromo.assignedUserId || null,
+                discount_type: newPromo.discountType,
+                expiry_date: newPromo.expiryDate
+            };
+            const created = await api.post('/promos', payload);
+
+            // Re-fetch to get the correctly formatted object back from DB mapping in fetchData
+            fetchData();
         } catch (e: any) {
             console.error('API Create Failed', e);
             alert(`Failed to create promo code: ${e.message}`);

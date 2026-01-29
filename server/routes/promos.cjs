@@ -27,14 +27,15 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // CREATE Promo
 router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
-    const { code, discount, max_usage, assigned_sales_id } = req.body;
+    const { code, discount, max_usage, assigned_sales_id, expiry_date } = req.body;
+    console.log('Creating promo:', req.body); // DEBUG LOG
     try {
         const { rows } = await db.query(
-            `INSERT INTO promo_codes (code, discount_percentage, max_usage, assigned_sales_id, created_by, approved_by)
-       VALUES ($1, $2, $3, $4, $5, $5) 
+            `INSERT INTO promo_codes (code, discount_percentage, max_usage, assigned_sales_id, created_by, approved_by, discount_type, expiry_date)
+       VALUES ($1, $2, $3, $4, $5, $5, $6, $7) 
        ON CONFLICT (code) DO NOTHING
        RETURNING *`,
-            [code.toUpperCase(), discount, max_usage, assigned_sales_id || null, req.user.id]
+            [code.toUpperCase(), discount, max_usage, assigned_sales_id || null, req.user.id, req.body.discount_type || 'percentage', req.body.expiry_date || null]
         );
         if (rows.length === 0) {
             const existing = await db.query(`SELECT * FROM promo_codes WHERE code = $1`, [code.toUpperCase()]);

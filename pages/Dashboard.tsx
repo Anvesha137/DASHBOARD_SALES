@@ -48,7 +48,19 @@ const Dashboard: React.FC = () => {
                 timeSpentMinutes: 0, // Default
                 salesPersonName: u.sales_person_name
             })));
-            setPromoCodes(promosData);
+            setPromoCodes(promosData.map((p: any) => ({
+                id: p.id,
+                code: p.code,
+                discountType: 'PERCENTAGE', // DB doesn't store this yet? Migration said integer discount_percentage
+                value: p.discount_percentage,
+                maxUses: p.max_usage,
+                usageCount: p.usage_count,
+                expiryDate: p.created_at, // Temporary fallback if expiry not stored
+                assignedUserId: p.assigned_sales_name, // Mapping ID to name for display
+                createdAt: p.created_at,
+                createdBy: p.created_by_name || 'Admin',
+                approvedBy: p.approved_by_name || 'Auto-Approved'
+            })));
             setSalesPeople(salesData);
             setExpenses(expensesData);
             setAnalytics(analyticsData);

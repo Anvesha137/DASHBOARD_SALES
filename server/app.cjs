@@ -38,8 +38,9 @@ const fs = require('fs');
 const distPath = path.join(__dirname, '../dist');
 const indexHtmlPath = path.join(distPath, 'index.html');
 
+console.log(`[Server] Checking dist path: ${distPath}`);
 if (fs.existsSync(distPath)) {
-    console.log(`Serving static files from: ${distPath}`);
+    console.log(`[Server] Serving static files from: ${distPath}`);
     app.use(express.static(distPath));
 
     // Handle React routing, return all requests to React app
@@ -51,16 +52,28 @@ if (fs.existsSync(distPath)) {
             res.status(404).send('Application built, but index.html not found.');
         }
     });
+});
 } else {
-    console.log(`Dist directory not found at: ${distPath}. Run 'npm run build' first.`);
+    console.error(`[Server] Dist directory NOT found at: ${distPath}`);
+    console.error(`[Server] Current directory: ${__dirname}`);
+    console.error(`[Server] Directory contents of ..:`, fs.readdirSync(path.join(__dirname, '..')));
+
     // Fallback for when running server-only in dev without dist
-    app.get('*', (req, res) => res.send('Backend Server Running. Frontend not built or not served.'));
+    app.get('*', (req, res) => {
+        res.status(404).send(`
+            <h1>Backend Server Running</h1>
+            <p>Frontend production build not found.</p>
+            <p>Expected path: ${distPath}</p>
+            <p>Please run <code>npm run build</code> before starting the server in production mode.</p>
+        `);
+    });
 }
 
 // Start server only if run directly (local dev)
 if (require.main === module) {
     app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server running on http://0.0.0.0:${PORT}`);
-        console.log(`Environment: ${process.env.NODE_ENV}`);
+        console.log(`[Server] Server starting on port ${PORT}`);
+        console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
+        console.log(`[Server] Accessible at http://0.0.0.0:${PORT}`);
     });
 }

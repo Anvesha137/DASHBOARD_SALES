@@ -52,7 +52,7 @@ if (fs.existsSync(distPath)) {
             res.status(404).send('Application built, but index.html not found.');
         }
     });
-});
+
 } else {
     console.error(`[Server] Dist directory NOT found at: ${distPath}`);
     console.error(`[Server] Current directory: ${__dirname}`);
@@ -77,3 +77,6 @@ if (require.main === module) {
         console.log(`[Server] Accessible at http://0.0.0.0:${PORT}`);
     });
 }
+}
+
+module.exports = app;

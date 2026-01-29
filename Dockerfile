@@ -1,5 +1,5 @@
 # Stage 1: Build the frontend
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production Server
-FROM node:18-slim
+FROM node:20-slim
 
 WORKDIR /app
 

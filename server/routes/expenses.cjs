@@ -40,7 +40,8 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 
     try {
-        `INSERT INTO expenses (
+        const { rows } = await db.query(
+            `INSERT INTO expenses (
                 merchant, type, amount, description, expense_date, 
                 created_by
             ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
@@ -49,11 +50,11 @@ router.post('/', authenticateToken, async (req, res) => {
                 req.user.id
             ]
         );
-res.status(201).json(rows[0]);
+        res.status(201).json(rows[0]);
     } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create expense' });
-}
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create expense' });
+    }
 });
 
 // APPROVE / REIMBURSE (Admin only)
